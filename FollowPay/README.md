@@ -14,10 +14,18 @@ Built with **Next.js 15 (App Router) and TypeScript**.
 ```
 app/
   layout.tsx            fonts, metadata
-  page.tsx              renders <PayFollow />
+  page.tsx              renders <PayFollow /> (protected route)
+  login/page.tsx        login page with demo credentials
   globals.css           all styles
-  api/generate/route.ts server route that calls Gemma
-components/PayFollow.tsx  the whole UI (client component)
+  api/
+    auth/[...nextauth]/route.ts NextAuth route handler
+    generate/route.ts   server route that calls Gemma
+components/
+  PayFollow.tsx         main UI with user profile & sign out
+  LoginForm.tsx         login form with quick demo sign-in
+auth.ts                 NextAuth configuration & credentials provider
+auth.config.ts          lightweight NextAuth configuration for edge middleware
+middleware.ts           route protection middleware
 lib/invoice.ts          types, overdue maths, tone selection, fallback templates
 lib/gemma.ts            prompt building and the Gemma API call (server only)
 ```
@@ -42,6 +50,7 @@ Change the thresholds in `stageFor()` in `lib/invoice.ts`.
 3. In **Project → Settings → Environment Variables** add:
    - `GEMINI_API_KEY` = your key
    - `GEMMA_MODEL` = `gemma-3-27b-it` (optional; any Gemma model your key can access)
+   - `AUTH_SECRET` = random 32-byte secret (e.g. `npx auth secret`)
 4. Redeploy so the variables apply.
 
 ## Run locally
