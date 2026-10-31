@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
+import { signOut } from "next-auth/react";
 import {
   CURRENCIES,
   TONE_NAMES,
@@ -45,8 +46,17 @@ interface Note {
   error: boolean;
 }
 
-export default function PayFollow() {
-  const [form, setForm] = useState<InvoiceForm>(emptyForm);
+export interface PayFollowUser {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+export default function PayFollow({ user }: { user?: PayFollowUser } = {}) {
+  const [form, setForm] = useState<InvoiceForm>(() => ({
+    ...emptyForm,
+    sender: user?.name ?? emptyForm.sender,
+  }));
   const [chosenTone, setChosenTone] = useState<Tone | null>(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -221,11 +231,31 @@ export default function PayFollow() {
   return (
     <div style={{ "--stamp": STAGE_COLOR[stage] } as CSSProperties}>
       <header>
-        <h1>PayFollow</h1>
-        <p>
-          Enter the invoice. PayFollow works out how overdue it is and drafts the follow-up that fits, from a friendly
-          nudge to a final notice.
-        </p>
+        <div className="header-row">
+          <div className="header-content">
+            <h1>PayFollow</h1>
+            <p>
+              Enter the invoice. PayFollow works out how overdue it is and drafts the follow-up that fits, from a friendly
+              nudge to a final notice.
+            </p>
+          </div>
+          {user && (
+            <div className="user-badge">
+              <span className="user-avatar" aria-hidden="true">
+                {(user.name || user.email || "U").charAt(0).toUpperCase()}
+              </span>
+              <span className="user-email">{user.email || user.name}</span>
+              <button
+                type="button"
+                className="signout-btn"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                title="Sign out of your account"
+              >
+                Sign out
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       <main className="layout">
